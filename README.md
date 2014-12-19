@@ -1,7 +1,7 @@
 ###Descripción
 Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que estén en spec a pickear, muy útil cuando nadie se pasa después de un rato, si algun jugador se paso previamente a pickear solo elegirá al del equipo contrario.
  
-*El plugin no mueve a los jugadores a spec automaticamente, por lo tanto antes de ejecutarlo deberian estar todos en spec (`!spec @all`)*
+*El plugin no mueve a los jugadores a spec automaticamente, por lo tanto antes de ejecutarlo deberian estar todos en spec* `!spec @all`
  
 ###Comandos
 `!forcepicker` - `/forcepicker` - `.fp` - Cualquiera de los 3 hace lo mismo, manda a 2 jugadores de spec a pickear, tambien se puede usar por consola: `sm_forcepicker`. Los comandos solo funcionan para quienes sean admins genericos
