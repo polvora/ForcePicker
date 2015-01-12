@@ -22,9 +22,6 @@ Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/co
 
 ###Changelog
 > [19/12/2014] v1.0 - Publicación Inicial.
-
 > [12/01/2015] v1.1 - Cambios en los colores y textos.
-
->					- Reescritura del codigo que elige jugadores al azar, ahora es mas limpio el proceso.
-
+>					- Rescritura del codigo que elige jugadores al azar, ahora es mas limpio el proceso.
 >					- Cambio de clase dependiendo del modo de juego (HL: Heavy / 6v6: Scout).
