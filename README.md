@@ -1,32 +1,46 @@
-###Descripción
-Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que estén en spec a pickear, útil cuando nadie se pasa después de un rato, si algun jugador se paso previamente a pickear solo elegirá al del equipo contrario.
- 
-*El plugin no mueve a los jugadores a spec automaticamente, por lo tanto antes de ejecutarlo deberian estar todos en spec* `!spec @all`
+###DescripciÃ³n
+Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que estÃ©n en spec a pickear, Ãºtil cuando nadie se pasa despuÃ©s de un rato, si algun jugador se paso previamente a pickear solo elegirÃ¡ al del equipo contrario.
 
 ###Comandos
-`!forcepicker` - `/forcepicker` - `.fp` - Cualquiera de los 3 hace lo mismo, manda a 2 jugadores de spec a pickear, tambien se puede usar por consola: `sm_forcepicker`. Los comandos solo funcionan para quienes sean admins genericos
- 
+`!forcepick` - `!fp` - `.fp` - Cualquiera de los 2 hace lo mismo, manda a 2 jugadores de spec a pickear inmediatamente.
+`!forcepick <tiempo>` - `!fp <tiempo>` - Al agregar un valor de tiempo (en segundos) se harÃ¡ una cuenta regresiva con ese tiempo. Esto para darle tiempo a los jugadores antes de forzarlos a pickear. 
+Tambien se puede usar por consola: `sm_forcepick` - `sm_fp`. 
+Nota: Estos comandos solo funcionan para quienes sean admins genericos.
+
 ###Requerimientos
-Una version de Sourcemod reciente y funcional (Versión Actual: 1.6.3), probablemente también funcione con versiones antiguas.
+Una version de Sourcemod reciente y funcional (VersiÃ³n Actual: 1.6.3), probablemente tambiÃ©n funcione con versiones antiguas.
  
-###Instalación
+ 
+###InstalaciÃ³n
 Como cualquier otro plugin, copiar el archivo *forcepicker.smx* a */addons/sourcemod/plugins* del directorio de tf2.
-Para actualizar los plugins puedes reiniciar el server, cambiar de mapa o con rcon escribir estos dos comandos:
+Para cargar el plugin puede reiniciar el server, cambiar de mapa o con rcon escribir este comando:
 
-`rcon sm plugins unload_all`
+`rcon sm plugins load forcepicker`
 
-`rcon sm plugins refresh`
+O con el comando de chat 
+`!rcon sm plugins load forcepicker` (Necesita flag `m`)
+
  
 ###Descarga
-Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/compiler.php) o descarga la versión compilada aqui: [forcepicker.smx](https://bitbucket.org/Polvora/force-picker/downloads/forcepicker.smx)
+Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/compiler.php) o descarga la versiÃ³n compilada aqui: [forcepicker.smx](https://bitbucket.org/Polvora/force-picker/downloads/forcepicker.smx)
 
 ###Changelog
 > [19/12/2014] v1.0 
 
-> * Publicación Inicial.
+> * PublicaciÃ³n Inicial.
 
 > [12/01/2015] v1.1
 
 > * Cambios en los colores y textos.
 > * Rescritura del codigo que elige jugadores al azar, ahora es mas limpio el proceso.
 > * Cambio de clase dependiendo del modo de juego (HL: Heavy / 6v6: Scout).
+
+> [20/01/2015] v2.0
+
+> * Nueva versiÃ³n con muchas mejoras!
+> * Agregados comandos de admin `!forcepick` y `!fp` como alias de `!forcepicker`.
+> * Comandos de admin ahora reciben un argumento de tiempo que activarÃ¡n una cuenta regresiva. Esta cuenta regresiva sirve para darle tiempo a los jugadores antes de forzarlos a pickear.
+> * Agregados varios CVARs que se pueden configurar en `cfg/sourcemod/plugin.forcepicker.cfg` especialmente para customizar el mensaje del HUD.
+> * Agregado una funciÃ³n de manda a Spec a los jugadores antes de forzar el pikeo con cuenta regresiva.
+> * Arreglado un error que hacÃ­a que no se forzara la clase de scout en el equipo red.
+> * Otras corecciones de bugs.
