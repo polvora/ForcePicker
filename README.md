@@ -1,3 +1,5 @@
+Basado en el plugin de Statik https://bitbucket.org/Polvora/force-picker
+
 ###Descripción
 Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que estén en spec a pickear, útil cuando nadie se pasa después de un rato, si algun jugador se paso previamente a pickear solo elegirá al del equipo contrario.
 
