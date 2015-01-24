@@ -1,3 +1,5 @@
+Basado en el plugin de Statik https://bitbucket.org/Polvora/force-picker
+
 ###Descripción
 Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que estén en spec a pickear, útil cuando nadie se pasa después de un rato, si algun jugador se paso previamente a pickear solo elegirá al del equipo contrario.
 
@@ -25,17 +27,17 @@ O con el comando de chat
 Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/compiler.php) o descarga la versión compilada aqui: [forcepicker.smx](https://bitbucket.org/Polvora/force-picker/downloads/forcepicker.smx)
 
 ###Changelog
-> [19/12/2014] v1.0 
+> [19/12/2014] v1.0 - Statik
 
 > * Publicación Inicial.
 
-> [12/01/2015] v1.1
+> [12/01/2015] v1.1 - Statik
 
 > * Cambios en los colores y textos.
 > * Rescritura del codigo que elige jugadores al azar, ahora es mas limpio el proceso.
 > * Cambio de clase dependiendo del modo de juego (HL: Heavy / 6v6: Scout).
 
-> [20/01/2015] v2.0
+> [20/01/2015] v2.0 - KniL
 
 > * Nueva versión con muchas mejoras!
 > * Agregados comandos de admin `!forcepick` y `!fp` como alias de `!forcepicker`.
