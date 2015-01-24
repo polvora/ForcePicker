@@ -46,3 +46,7 @@ Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/co
 > * Agregado una función de manda a Spec a los jugadores antes de forzar el pikeo con cuenta regresiva.
 > * Arreglado un error que hacía que no se forzara la clase de scout en el equipo red.
 > * Otras corecciones de bugs.
+
+> [24/01/2015] v2.0.1 - KniL
+> * Arreglado el no poder cambiar el mensaje del hud.
+> * Añadido una Cvar que permite Activar/Desactivar la función de "Mandar-a-spec cuando se usa el timer" (sm_forcepicker_sendtospec)
