@@ -20,6 +20,7 @@ new Handle:g_hCvarHudY;
 new Handle:g_hCvarHudMessage;
 new Handle:g_hTimer;
 new Handle:g_hHud;
+new Handle:g_hCvarSendtoSpec;
 
 /*================================
 ************ CVARS ***************
@@ -29,6 +30,7 @@ new bool:g_bEnabled;
 new Float:g_iHudX;
 new Float:g_iHudY;
 new String:g_strHudMessage[50];
+new bool:g_bSendtoSpec;
 
 /*=====================================
 ************* VARIABLES ***************
@@ -55,9 +57,14 @@ public OnPluginStart()
 {
 	// Cvars 
 	CreateConVar("sm_forcepicker_version", PLUGIN_VERSION, "Forcepicker Version", FCVAR_PLUGIN | FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
+	
 	g_hCvarEnabled = CreateConVar("sm_forcepicker_enabled", "1", "Enable Forcepicker\n0 = Disabled\n1 = Enabled", _, true, 0.0, true, 1.0);
 	g_bEnabled = GetConVarBool(g_hCvarEnabled);
 	HookConVarChange(g_hCvarEnabled, OnConVarChange);
+	
+	g_hCvarSendtoSpec = CreateConVar("sm_forcepicker_sendtospec", "1", "Enable the function that send players to spectator when using the timer\n0 = Disabled\n1 = Enabled", _, true, -1.0, true, 1.0);
+	g_bSendtoSpec = GetConVarBool(g_hCvarSendtoSpec);
+	HookConVarChange(g_hCvarSendtoSpec, OnConVarChange);
 	
 	// Commands
 	RegConsoleCmd("sm_forcepicker", cmdForcePickers, "Forces random people from spec to pick players");
@@ -77,7 +84,7 @@ public OnPluginStart()
 	g_iHudY = GetConVarFloat(g_hCvarHudY);
 	HookConVarChange(g_hCvarHudY, OnConVarChange);
 	
-	g_hCvarHudMessage = CreateConVar("sm_forcepicker_hudMessage", "Time to pick", "Message for the timer");
+	g_hCvarHudMessage = CreateConVar("sm_forcepicker_hudMessage", "Time to pick", "Message for the timer HUD");
 	GetConVarString(g_hCvarHudMessage, g_strHudMessage, sizeof(g_strHudMessage));
 	HookConVarChange(g_hCvarHudMessage, OnConVarChange);
 
@@ -131,7 +138,7 @@ public Action:Timer_Round(Handle:hTimer)
 			for(new i = 1; i <= MaxClients; i++) if(IsValidClient(i))
 			{
 				//if(!IsFakeClient(i))
-					ShowSyncHudText(i, g_hHud, "Time to pick: %02d:%02d", g_iRemaining / 60, g_iRemaining % 60);
+					ShowSyncHudText(i, g_hHud, "%s: %02d:%02d", g_strHudMessage, g_iRemaining / 60, g_iRemaining % 60);
 			}
 		}
 	}
@@ -243,7 +250,8 @@ cmdExecutor(client, time)
 	{
 		ClearTimer(g_hTimer);
 		
-		MovePlayersToSpec(); // Move players to spectator
+		if(g_bSendtoSpec)
+			MovePlayersToSpec(); // Move players to spectator
 		
 		g_iRemaining = time;
 		g_iTimerTime = time; // Save time for future use
@@ -366,13 +374,15 @@ public OnConVarChange(Handle:hConvar, const String:strOldValue[], const String:s
 {
 	if(hConvar == g_hCvarEnabled)
 	{
-		g_bEnabled = GetConVarBool(g_hCvarEnabled);
+		g_bEnabled = GetConVarBool(hConvar);
 		if(!g_bEnabled)
 			//Delete the timer
 			ClearTimer(g_hTimer);
 	}
+	if(hConvar == g_hCvarSendtoSpec)
+		g_bSendtoSpec = GetConVarBool(hConvar);
 	if(hConvar == g_hCvarHudMessage)
-		GetConVarString(g_hCvarHudMessage, g_strHudMessage, sizeof(g_strHudMessage));
+		GetConVarString(hConvar, g_strHudMessage, sizeof(g_strHudMessage));
 	if(hConvar == g_hCvarHudX)
 		g_iHudX = GetConVarFloat(hConvar);
 	if(hConvar == g_hCvarHudY)
