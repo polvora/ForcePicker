@@ -1,12 +1,10 @@
-Basado en el plugin de Statik https://bitbucket.org/Polvora/force-picker
-
-###Descripción
+#Force Picker
 Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que estén en spec a pickear, útil cuando nadie se pasa después de un rato, si algún jugador se paso previamente a pickear solo elegirá al del equipo contrario.
 
 ###Comandos
 `!fp [5-600|stop] [spec]` como alias esta también `!forcepicker`
 
-_Ejemplos:_
+_**Ejemplos:**_
 
 `!fp 60` Por ejemplo si hago  se mostrara una cuenta de regresiva de un minuto antes de que se fuerce a alguien a pickear. Si no se pone ningún tiempo, se fuerza a un jugador de inmediato.  
 `!fp 60 spec` Lo mismo que el anterior pero antes iniciar el tiempo manda a los jugadores a spec.  
@@ -54,8 +52,8 @@ Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/co
 
 > [02/02/2015] v2.2 - Statik
 
-> * Eliminadas todas las Cvars
-> * Eliminador los comandos `.fp` y `!forcepick`
+> * Eliminadas todas las Cvars.
+> * Eliminador los comandos `.fp` y `!forcepick`.
 > * Enviar a los jugadores a spec es ahora opcional agregando el argumento `spec` al final del comando.
 > * Agregado un límite en el rango de tiempo, desde 5 segundos hasta 10 minutos.
 > * Agregada el argumento `stop` al final del comando, este sirve para detener el timer.
