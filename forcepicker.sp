@@ -6,37 +6,10 @@
 
 
 #define PLUGIN_URL ""
-#define PLUGIN_VERSION "2.0"
+#define PLUGIN_VERSION "2.2"
 #define PLUGIN_NAME "Force Picker"
 #define PLUGIN_AUTHOR "Statik and KniL"
 #define DEBUG 1
-
-/*================================
-******** HANDLES | CVARS *********
-================================*/
-new Handle:g_hCvarEnabled;
-new Handle:g_hCvarHudX;
-new Handle:g_hCvarHudY;
-new Handle:g_hCvarHudMessage;
-new Handle:g_hTimer;
-new Handle:g_hHud;
-new Handle:g_hCvarSendtoSpec;
-
-/*================================
-************ CVARS ***************
-================================*/
-new g_iTimerTime;
-new bool:g_bEnabled;
-new Float:g_iHudX;
-new Float:g_iHudY;
-new String:g_strHudMessage[50];
-new bool:g_bSendtoSpec;
-
-/*=====================================
-************* VARIABLES ***************
-=====================================*/
-new g_iRemaining;
-new bool:g_bTournament;
 
 public Plugin:myinfo = 
 {
@@ -47,7 +20,19 @@ public Plugin:myinfo =
 	url = PLUGIN_URL
 }
 
-new minPlayers = 2;
+/*================================
+************ HANDLES *************
+================================*/
+
+new Handle:g_hTimer;
+new Handle:g_hHud;
+
+/*=====================================
+************* VARIABLES ***************
+=====================================*/
+
+new remainingTime;
+new bool:isRunning = false;
 
 /*==================================
 ******* ONFUNCTIONS & EVENTS *******
@@ -56,41 +41,12 @@ new minPlayers = 2;
 public OnPluginStart()
 {
 	// Cvars 
-	CreateConVar("sm_forcepicker_version", PLUGIN_VERSION, "Forcepicker Version", FCVAR_PLUGIN | FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
-	
-	g_hCvarEnabled = CreateConVar("sm_forcepicker_enabled", "1", "Enable Forcepicker\n0 = Disabled\n1 = Enabled", _, true, 0.0, true, 1.0);
-	g_bEnabled = GetConVarBool(g_hCvarEnabled);
-	HookConVarChange(g_hCvarEnabled, OnConVarChange);
-	
-	g_hCvarSendtoSpec = CreateConVar("sm_forcepicker_sendtospec", "1", "Enable the function that send players to spectator when using the timer\n0 = Disabled\n1 = Enabled", _, true, -1.0, true, 1.0);
-	g_bSendtoSpec = GetConVarBool(g_hCvarSendtoSpec);
-	HookConVarChange(g_hCvarSendtoSpec, OnConVarChange);
+	CreateConVar("forcepicker_version", PLUGIN_VERSION, "Force Picker Version", FCVAR_PLUGIN | FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
 	
 	// Commands
-	RegConsoleCmd("sm_forcepicker", cmdForcePickers, "Forces random people from spec to pick players");
-	RegConsoleCmd("sm_forcepick", cmdForcePickers, "Forces random people from spec to pick players");
-	RegConsoleCmd("sm_fp", cmdForcePickers, "Forces random people from spec to pick players");
+	RegConsoleCmd("sm_forcepicker", cmdForcePicker, "Forces random people from spec to pick players.");
+	RegConsoleCmd("fp", cmdForcePicker, "Forces random people from spec to pick players.");
 	
-	// Quick Commands
-	AddCommandListener(cmdSay, "say");
-	AddCommandListener(cmdSay, "say_team");
-	
-	// Timer Cvars
-	g_hCvarHudX = CreateConVar("sm_forcepicker_xhud", "-1", "X hud position\n-1 = Center", _, true, -1.0, true, 1.0);
-	g_iHudX = GetConVarFloat(g_hCvarHudX);
-	HookConVarChange(g_hCvarHudX, OnConVarChange);
-
-	g_hCvarHudY = CreateConVar("sm_forcepicker_yhud", "0.15", "Y hud position\n-1 = Center", _, true, -1.0, true, 1.0);
-	g_iHudY = GetConVarFloat(g_hCvarHudY);
-	HookConVarChange(g_hCvarHudY, OnConVarChange);
-	
-	g_hCvarHudMessage = CreateConVar("sm_forcepicker_hudMessage", "Time to pick", "Message for the timer HUD");
-	GetConVarString(g_hCvarHudMessage, g_strHudMessage, sizeof(g_strHudMessage));
-	HookConVarChange(g_hCvarHudMessage, OnConVarChange);
-
-	//Create config on cfg/sourcemod
-	AutoExecConfig(true, "plugin.forcepicker");
-
 	//To hook timer related game events
 	HookEvent("player_team", OnPlayerChangeTeam);
 
@@ -98,78 +54,18 @@ public OnPluginStart()
 	g_hHud = CreateHudSynchronizer();
 }
 
-public OnMapStart()
-{
-	//Clear the timer
-	ClearTimer(g_hTimer);
-	//Make sure the map is on Tournament mode 
-	g_bTournament = false;
-	if(GetConVarBool(FindConVar("mp_tournament")))
-		g_bTournament = true;
-}
-
 public Action:OnPlayerChangeTeam(Handle:hEvent, const String:strName[], bool:bDontBroadcast)
 {
-	CreateTimer(3.0, AuxOnPlayerChangeTeam, _);
+	if (isRunning) CreateTimer(1.0, AuxOnPlayerChangeTeam);
 }
 
 public Action:AuxOnPlayerChangeTeam(Handle:timer) 
 { 
 	// Checks if there are players in both teams already
-	if (GetRealTeamClientCount(2) == 1) 
+	if (GetRealTeamClientCount(2) == 1 && GetRealTeamClientCount(3) == 1)
 	{
-		if (GetRealTeamClientCount(3) == 1)
-			ClearTimer(g_hTimer);
-	}
-}
-
-/*==================================
-**********TIMER CREATION************
-==================================*/
-public Action:Timer_Round(Handle:hTimer)
-{
-	g_iRemaining--;
-
-	if(g_iRemaining >= 0)
-	{
-		if(g_hHud != INVALID_HANDLE)
-		{
-			SetHudTextParams(g_iHudX, g_iHudY, 1.1, 255, 255, 255, 255);
-			for(new i = 1; i <= MaxClients; i++) if(IsValidClient(i))
-			{
-				//if(!IsFakeClient(i))
-					ShowSyncHudText(i, g_hHud, "%s: %02d:%02d", g_strHudMessage, g_iRemaining / 60, g_iRemaining % 60);
-			}
-		}
-	}
-	else
-	{
-		ForcePickers();
+		ForcePicker();
 		ClearTimer(g_hTimer);
-		return Plugin_Handled;
-	}
-	return Plugin_Continue;
-}
-
-/*==================================
-**************STOCKS****************
-==================================*/
-
-stock IsValidClient(iClient, bool:bReplay = true)
-{
-	if(iClient <= 0 || iClient > MaxClients || !IsClientInGame(iClient))
-		return false;
-	if(bReplay && (IsClientSourceTV(iClient) || IsClientReplay(iClient)))
-		return false;
-	return true;
-}
-
-stock ClearTimer(&Handle:hTimer)
-{
-	if(hTimer != INVALID_HANDLE)
-	{
-		KillTimer(hTimer);
-		hTimer = INVALID_HANDLE;
 	}
 }
 
@@ -177,98 +73,180 @@ stock ClearTimer(&Handle:hTimer)
 *********CLIENT COMMANDS************
 ==================================*/
 
-public Action:cmdForcePickers(client, args)
+public Action:cmdForcePicker(client, args)
 {
-	new String:buffer[4];
-	if(g_bTournament)
+	new String:buffer[16];
+	if(GetConVarBool(FindConVar("mp_tournament")) == false)
+		return Plugin_Handled;
+	
+	if(args == 0)
+		cmdExecutor(client);
+	if (args > 0)
 	{
-		if(args < 1)
-			cmdExecutor(client, 0);
-		else
+		GetCmdArg(1, buffer, sizeof buffer);
+		new time = StringToInt(buffer);
+		if (time == 0) // It means time is nan
 		{
-			if (args == 1)
+			if (StrEqual(buffer, "stop"))
 			{
-				GetCmdArg(1, buffer, sizeof(buffer));
-				g_iTimerTime = StringToInt(buffer);
-				cmdExecutor(client, g_iTimerTime);
+				cmdExecutor(client, _, _, true);
+				return Plugin_Handled;
+			}
+			else if (StrEqual(buffer, "spec"))
+			{
+				cmdExecutor(client, _, true);
+				return Plugin_Handled;
+			}
+			else
+			{
+				GetCmdArg(0, buffer, sizeof(buffer));
+				PrintToChat(client, "\x07FFF047Incorrect syntax, usage: \x01%s [5-600] [stop|spec]", buffer);
+				return Plugin_Handled;
 			}
 		}
-		return Plugin_Continue;
+		if (args > 1)
+		{
+			GetCmdArg(2, buffer, sizeof buffer);
+			if (StrEqual(buffer, "spec"))
+			{
+				cmdExecutor(client, time, true);
+				return Plugin_Handled;
+			}
+			else
+			{
+				GetCmdArg(0, buffer, sizeof(buffer));
+				PrintToChat(client, "\x07FFF047Incorrect syntax, usage: \x01%s [5-600] [stop|spec]", buffer);
+				return Plugin_Handled;
+			}
+		}
+		else
+		{
+			cmdExecutor(client, time);
+			return Plugin_Handled;
+		}
 	}
 	return Plugin_Handled;
 }
 
-public Action:cmdSay(client, const String:command[], args)
+cmdExecutor(client, time=0 , bool:spec=false, bool:stop=false)
 {
-	new String:text[192];
-	GetCmdArgString(text, sizeof(text));
-	
-	new startidx = 0;
-	if (text[0] == '"')
-	{
-		startidx = 1;
-		new len = strlen(text);
-		if (text[len-1] == '"')
-		{
-			text[len-1] = '\0';
-		}
-	}
-	
-	if (StrEqual(text[startidx], ".fp", false))
-	{
-		CreateTimer(0.1, tmrAuxExecutor, client);
-	}
-	
-	return Plugin_Continue;
-}
-
-public Action:tmrAuxExecutor(Handle:timer, any:client) 
-{ 
-	if (IsClientInGame(client)) { cmdExecutor(client, 0); }
-}
-
-cmdExecutor(client, time)
-{
-	if (!GetAdminFlag(GetUserAdmin(client), Admin_Generic)) // Checks if client is not a generic admin
-	{
-		PrintToChat(client, "\x07FFF047You do not have access to this command.");
-		return;
-	}
-	if (GetRealClientCount() < minPlayers)
+	if (GetRealClientCount() < 2)
 	{
 		PrintToChat(client, "\x07FFF047There is no enough players to pick.");
 		return;
 	}
-	if ((GetRealTeamClientCount(2) != 0) && (GetRealTeamClientCount(3) != 0)) // Checks if there are players in both teams already
+	if (time != 0 && (time < 5 || time > 600))
 	{
-		PrintToChat(client, "\x07FFF047There are already players in both teams.");
+		PrintToChat(client, "\x07FFF047Invalid time. Input range: \x01[5-600].");
 		return;
 	}
+	if (!spec && !stop)
+	{
+		if ((GetRealTeamClientCount(2) > 0) && (GetRealTeamClientCount(3) > 0))
+		{
+			PrintToChat(client, "\x07FFF047There are already players in both teams.");
+			return;
+		}
+		if (GetRealTeamClientCount(1) < 2)
+		{
+			PrintToChat(client, "\x07FFF047There is no enough players on Spectator team.");
+			return;
+		}
+	}
+	if (stop)
+	{
+		if (!isRunning)
+			PrintToChat(client, "\x07FFF047No timer is running at this time.");
+		else
+			PrintToChatAll("\x07FFF047Countdown timer has been stopped.");
+		
+		ClearTimer(g_hTimer);
+		return;
+	}
+	if (spec)
+		MovePlayersToSpec();
 	
-	//When sm_forcepicker have time argument
 	if(time)
 	{
 		ClearTimer(g_hTimer);
 		
-		if(g_bSendtoSpec)
-			MovePlayersToSpec(); // Move players to spectator
+		PrintToChatAll("\x07FFF047In \x01%i \x07FFF047seconds random players will be chosen to pick.", time);
 		
-		g_iRemaining = time;
-		g_iTimerTime = time; // Save time for future use
-		g_hTimer = CreateTimer(1.0, Timer_Round, _, TIMER_REPEAT);
+		remainingTime = time;
+		g_hTimer = CreateTimer(1.0, CountdownTimer, _, TIMER_REPEAT);
 	}
-	else ForcePickers();
+	else
+	{
+		if (GetRealTeamClientCount(1) < 2)
+		{
+			PrintToChat(client, "\x07FFF047There is no enough players on Spectator team.");
+			return;
+		}
+		ForcePicker();
+	}
+}
+
+public Action:CountdownTimer(Handle:hTimer)
+{
+	isRunning = true;
+
+	if(remainingTime >= 0)
+	{
+		if(g_hHud != INVALID_HANDLE)
+		{
+			SetHudTextParams(-1.0, 0.15, 1.1, 255, 255, 60, 255);
+			for(new i = 1; i <= MaxClients; i++) if(IsValidClient(i))
+				if(IsValidClient(i))
+					ShowSyncHudText(i, g_hHud, "Forcing random players to pick in %02d:%02d", remainingTime / 60, remainingTime % 60);
+		}
+	}
+	else
+	{
+		isRunning = false;
+		ForcePicker();
+		return Plugin_Stop;
+	}
+	
+	remainingTime--;
+	return Plugin_Handled;
+}
+
+ClearTimer(&Handle:hTimer)
+{
+	if(hTimer != INVALID_HANDLE && isRunning == true)
+	{
+		KillTimer(hTimer);
+		hTimer = INVALID_HANDLE;
+		isRunning = false;
+	}
 }
 
 /*==================================
 *************MAIN CODE**************
 ==================================*/
 
-ForcePickers()
+ForcePicker()
 {
 	new client1, client2;
 	new redCount = GetRealTeamClientCount(2);
 	new bluCount = GetRealTeamClientCount(3);
+	
+	if (redCount > 0 || bluCount > 0)
+	{
+		if (GetRealTeamClientCount(1) < 1)
+		{
+			PrintToChatAll("\x07FFF047There is no enough players on Spectator team.");
+			return;
+		}
+	}
+	else
+	{
+		if (GetRealTeamClientCount(1) < 2)
+		{
+			PrintToChatAll("\x07FFF047There is no enough players on Spectator team.");
+			return;
+		}
+	}
 	
 	if (redCount == 0)
 	{
@@ -292,22 +270,8 @@ ForcePickers()
 		client2 = GetRandomPlayer(3);
 	}
 	
-	// This is to know the comp mode (HL/6v6)
-	new Handle:cvarClassLimit = FindConVar("tf_tournament_classlimit_scout");
-	new classLimit = GetConVarInt(cvarClassLimit);
-	CloseHandle(cvarClassLimit);
-	cvarClassLimit = INVALID_HANDLE;
-	
-	if (classLimit == 2) // 6v6
-	{
-		TF2_SetPlayerClass(client1, TFClass_Scout);
-		TF2_SetPlayerClass(client2, TFClass_Scout);
-	}
-	else // HL
-	{
-		TF2_SetPlayerClass(client1, TFClass_Heavy);
-		TF2_SetPlayerClass(client2, TFClass_Heavy);
-	}
+	TF2_SetPlayerClass(client1, TFClass_Scout);
+	TF2_SetPlayerClass(client2, TFClass_Scout);
 	
 	TF2_RespawnPlayer(client1);
 	TF2_RespawnPlayer(client2);
@@ -321,6 +285,8 @@ ForcePickers()
 		PrintToChatAll("\x07FFF047\x07FF4040%N \x07FFF047has been randomly chosen to pick against \x0799CCFF%N\x07FFF047.", client1, client2);
 	else if (bluCount == 0)
 		PrintToChatAll("\x07FFF047\x0799CCFF%N \x07FFF047has been randomly chosen to pick against \x07FF4040%N\x07FFF047.", client2, client1);
+	else
+		PrintToChatAll("\x07FFF047\x07FF4040%N \x07FFF047and \x0799CCFF%N \x07FFF047are picking for this match.", client1, client2);
 }//F1E783
 
 // Change to weapon slot 2 (Melee)
@@ -337,13 +303,21 @@ public Action:tmrMeleeStrip(Handle:timer, any:client)
 *********EXTRA FUNCTIONS************
 ==================================*/
 
-GetRealClientCount(bool:inGameOnly = true) 
+
+IsValidClient(client)
+{
+	if(client <= 0 || client > MaxClients || !IsClientInGame(client)) // DEBUG PURPOSES
+	//if(client <= 0 || client > MaxClients || !IsClientInGame(client) || IsFakeClient(client))
+		return false;
+	return true;
+}
+
+GetRealClientCount() 
 {
 	new clients = 0;
 	for (new i = 1; i <= GetMaxClients(); i++)
 	{
-		//if(((inGameOnly) ? IsClientInGame(i) : IsClientConnected(i)) && !IsFakeClient(i)) 
-		if(((inGameOnly) ? IsClientInGame(i) : IsClientConnected(i))) 
+		if(IsValidClient(i)) 
 			clients++;
 	}
 	return clients;
@@ -353,8 +327,7 @@ GetRealTeamClientCount(team)
 {
 	new clients = 0;
 	for (new i = 1; i <= MaxClients; i++)
-		//if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == team) 
-		if(IsClientInGame(i) && GetClientTeam(i) == team) 
+		if(IsValidClient(i) && GetClientTeam(i) == team) 
 			clients++;
 	return clients;
 }
@@ -363,30 +336,9 @@ GetRandomPlayer(team)
 { 
     new clients[MaxClients+1], clientCount; 
     for (new i = 1; i <= MaxClients; i++) 
-        //if (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == team) 
-		if (IsClientInGame(i) && GetClientTeam(i) == team) 
+		if (IsValidClient(i) && GetClientTeam(i) == team) 
 			clients[clientCount++] = i; 
     return (clientCount == 0) ? -1 : clients[GetRandomInt(0, clientCount-1)]; 
-}  
-
-//If a cvar change
-public OnConVarChange(Handle:hConvar, const String:strOldValue[], const String:strNewValue[])
-{
-	if(hConvar == g_hCvarEnabled)
-	{
-		g_bEnabled = GetConVarBool(hConvar);
-		if(!g_bEnabled)
-			//Delete the timer
-			ClearTimer(g_hTimer);
-	}
-	if(hConvar == g_hCvarSendtoSpec)
-		g_bSendtoSpec = GetConVarBool(hConvar);
-	if(hConvar == g_hCvarHudMessage)
-		GetConVarString(hConvar, g_strHudMessage, sizeof(g_strHudMessage));
-	if(hConvar == g_hCvarHudX)
-		g_iHudX = GetConVarFloat(hConvar);
-	if(hConvar == g_hCvarHudY)
-		g_iHudY = GetConVarFloat(hConvar);
 }
 
 MovePlayersToSpec()
