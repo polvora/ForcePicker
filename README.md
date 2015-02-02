@@ -6,7 +6,7 @@ Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que es
 
 _**Ejemplos:**_
 
-`!fp 60` Por ejemplo si hago  se mostrara una cuenta de regresiva de un minuto antes de que se fuerce a alguien a pickear. Si no se pone ningún tiempo, se fuerza a un jugador de inmediato.  
+`!fp 60` Se mostrara una cuenta de regresiva de un minuto antes de que se fuerce a alguien a pickear. Si no se pone ningún tiempo, se fuerza a un jugador de inmediato.  
 `!fp 60 spec` Lo mismo que el anterior pero antes iniciar el tiempo manda a los jugadores a spec.  
 `!fp stop` Para detener la cuenta regresiva.
 
