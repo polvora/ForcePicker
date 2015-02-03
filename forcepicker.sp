@@ -306,8 +306,8 @@ public Action:tmrMeleeStrip(Handle:timer, any:client)
 
 IsValidClient(client)
 {
-	if(client <= 0 || client > MaxClients || !IsClientInGame(client)) // DEBUG PURPOSES
-	//if(client <= 0 || client > MaxClients || !IsClientInGame(client) || IsFakeClient(client))
+	//if(client <= 0 || client > MaxClients || !IsClientInGame(client)) // DEBUG PURPOSES
+	if (client <= 0 || client > MaxClients || !IsClientInGame(client) || IsFakeClient(client))
 		return false;
 	return true;
 }
