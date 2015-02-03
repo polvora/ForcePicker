@@ -6,7 +6,7 @@ Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que es
 
 _**Ejemplos:**_
 
-`!fp 60` Se mostrara una cuenta de regresiva de un minuto antes de que se fuerce a alguien a pickear. Si no se pone ningún tiempo, se fuerza a un jugador de inmediato.  
+`!fp 60` Mostrara una cuenta de regresiva de un minuto antes de que se fuerce a alguien a pickear. Si no se especifica ningún tiempo, se fuerza a un jugador de inmediato.  
 `!fp 60 spec` Lo mismo que el anterior pero antes iniciar el tiempo manda a los jugadores a spec.  
 `!fp stop` Para detener la cuenta regresiva.
 
@@ -53,7 +53,8 @@ Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/co
 > [02/02/2015] v2.2 - Statik
 
 > * Eliminadas todas las Cvars.
-> * Eliminador los comandos `.fp` y `!forcepick`.
+> * Eliminados los comandos `.fp` y `!forcepick`.
+> * Eliminada la función que elegía la clase dependiendo del modo de juego.
 > * Enviar a los jugadores a spec es ahora opcional agregando el argumento `spec` al final del comando.
 > * Agregado un límite en el rango de tiempo, desde 5 segundos hasta 10 minutos.
 > * Agregada el argumento `stop` al final del comando, este sirve para detener el timer.
