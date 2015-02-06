@@ -61,3 +61,7 @@ Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/co
 > * Reparado un bug que se daba cuando no habia suficiente gente en Spectator.
 > * Reparados bugs menores varios.
 > * Algunos cambios gráficos.
+
+> [06/02/2015] v2.3 - Statik
+
+> * Reparado bug critico que permitia que cualquier persona ejecutara los comandos.
