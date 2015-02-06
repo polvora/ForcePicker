@@ -44,8 +44,8 @@ public OnPluginStart()
 	CreateConVar("forcepicker_version", PLUGIN_VERSION, "Force Picker Version", FCVAR_PLUGIN | FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
 	
 	// Commands
-	RegConsoleCmd("sm_forcepicker", cmdForcePicker, "Forces random people from spec to pick players.");
-	RegConsoleCmd("fp", cmdForcePicker, "Forces random people from spec to pick players.");
+	RegAdminCmd("sm_forcepicker", cmdForcePicker, ADMFLAG_GENERIC, "Forces random people from spec to pick players.");
+	RegAdminCmd("fp", cmdForcePicker, ADMFLAG_GENERIC, "Forces random people from spec to pick players.");
 	
 	//To hook timer related game events
 	HookEvent("player_team", OnPlayerChangeTeam);
