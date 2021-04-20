@@ -1,7 +1,7 @@
-#Force Picker
+# Force Picker
 Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que estén en spec a pickear, útil cuando nadie se pasa después de un rato, si algún jugador se paso previamente a pickear solo elegirá al del equipo contrario.
 
-###Comandos
+### Comandos
 `!fp [5-600|stop] [spec]` como alias esta también `!forcepicker`
 
 _**Ejemplos:**_
@@ -12,19 +12,19 @@ _**Ejemplos:**_
 
 Nota: Estos comandos solo funcionan para quienes sean admins genericos.
 
-###Requerimientos
+### Requerimientos
 Una version de Sourcemod reciente y funcional (Versión Actual: 1.6.3), probablemente también funcione con versiones antiguas.
 
-###Instalación
+### Instalación
 Como cualquier otro plugin, copiar el archivo _**forcepicker.smx**_ a _**/addons/sourcemod/plugins**_ del directorio de tf2.
 Para cargar el plugin puede reiniciar el server, cambiar de mapa o con rcon escribir este comando:
 
 `rcon sm plugins load forcepicker`
  
-###Descarga
+### Descarga
 Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/compiler.php) o descarga la versión compilada aqui: [forcepicker.smx](https://bitbucket.org/Polvora/force-picker/downloads/forcepicker.smx)
 
-###Changelog
+### Changelog
 > [19/12/2014] v1.0 - Statik
 
 > * Publicación Inicial.
