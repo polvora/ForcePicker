@@ -2,13 +2,14 @@
 Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que estén en spec a pickear, útil cuando nadie se pasa después de un rato, si algún jugador se paso previamente a pickear solo elegirá al del equipo contrario.
 
 ### Comandos
-`!fp [5-600|stop] [spec]` como alias esta también `!forcepicker`
+`!fp [1-30] [stop|spec]` como alias esta también `!forcepicker`
 
 _**Ejemplos:**_
 
-`!fp 60` Mostrara una cuenta de regresiva de un minuto antes de que se fuerce a alguien a pickear. Si no se especifica ningún tiempo, se fuerza a un jugador de inmediato.  
-`!fp 60 spec` Lo mismo que el anterior pero antes iniciar el tiempo manda a los jugadores a spec.  
-`!fp stop` Para detener la cuenta regresiva.
+`!fp` Moverá 2 players aleatoriamente a pickear.
+`!fp 5` Moverá 2 players aleatoriamente a pickear, si alguno de los players se retira (se va a spec, se desconecta o queda afk) vuelve a mover a el o los players que falten para pickear. El plugin se detiene despues de `5` reintentos, cuando un player mata a otro o cuando se ejecuta !fp 
+`!fp 5 spec` Lo mismo que el anterior pero antes de forzar mueve a los jugadores a spec.  
+`!fp stop` Para detener los reintentos.
 
 Nota: Estos comandos solo funcionan para quienes sean admins genericos.
 
@@ -22,7 +23,7 @@ Para cargar el plugin puede reiniciar el server, cambiar de mapa o con rcon escr
 `rcon sm plugins load forcepicker`
  
 ### Descarga
-Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/compiler.php) o descarga la versión compilada aqui: [forcepicker.smx](https://bitbucket.org/Polvora/force-picker/downloads/forcepicker.smx)
+En [Releases](https://github.com/polvora/ForcePicker/releases/) o compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/compiler.php).
 
 ### Changelog
 > [19/12/2014] v1.0 - Statik
@@ -65,3 +66,12 @@ Compila el codigo fuente en el [compilador en linea](http://www.sourcemod.net/co
 > [06/02/2015] v2.3 - Statik
 
 > * Reparado bug critico que permitia que cualquier persona ejecutara los comandos.
+
+> [29/04/2020] v3.0 - Statik
+
+> * Eliminada función de cuenta regresiva reemplazada por función de reintentos.
+> * Agredada función de reintentos para evitar que admin tenga que manualmente ejecutar el comando cada vez que un player falle al pickear.
+> * Agregada detección de retirada, detecta player que se pasa a spec o se desconecta.
+> * Agregada funcion de AFK para prevenir que pickeo se estanque debido a player AFK.
+> * Agregada detección cuando player mata a otro para dar por seleccionado a los pickers y por tanto terminar con los reintentos.
+> * Agregada mitigación para disminuir la probabilidad que un player sea pickeado 2 veces seguidas.
