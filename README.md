@@ -67,7 +67,7 @@ En [Releases](https://github.com/polvora/ForcePicker/releases/) o compila el cod
 
 > * Reparado bug critico que permitia que cualquier persona ejecutara los comandos.
 
-> [29/04/2020] v3.0 - Statik
+> [29/04/2021] v3.0 - Statik
 
 > * Eliminada función de cuenta regresiva reemplazada por función de reintentos.
 > * Agredada función de reintentos para evitar que admin tenga que manualmente ejecutar el comando cada vez que un player falle al pickear.
