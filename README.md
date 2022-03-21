@@ -7,7 +7,7 @@ Mini-plugin para los pick-up games (PUGs), que tira a 2 jugadores al azar que es
 _**Ejemplos:**_
 
 `!fp` Moverá 2 players aleatoriamente a pickear.
-`!fp 5` Moverá 2 players aleatoriamente a pickear, si alguno de los players se retira (se va a spec, se desconecta o queda afk) vuelve a mover a el o los players que falten para pickear. El plugin se detiene despues de `5` reintentos, cuando un player mata a otro o cuando se ejecuta !fp 
+`!fp 5` Moverá 2 players aleatoriamente a pickear, si alguno de los players se retira (se va a spec, se desconecta o queda afk) vuelve a mover a el o los players que falten para pickear. El plugin se detiene despues de `5` reintentos, cuando un player mata a otro o cuando se ejecuta `!fp stop`.  
 `!fp 5 spec` Lo mismo que el anterior pero antes de forzar mueve a los jugadores a spec.  
 `!fp stop` Para detener los reintentos.
 
