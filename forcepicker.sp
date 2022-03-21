@@ -1,4 +1,5 @@
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <tf2_stocks>
@@ -14,12 +15,12 @@
 #define MAX_TIME_WITHOUT_PICKERS 5
 #define MAX_AFK_TIME 15
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
-	name = PLUGIN_NAME,
-	author = PLUGIN_AUTHOR,
-	description = "Tool to make the pick up games quicker",
-	version = PLUGIN_VERSION,
+	name = PLUGIN_NAME, 
+	author = PLUGIN_AUTHOR, 
+	description = "Tool to make the pick up games quicker", 
+	version = PLUGIN_VERSION, 
 	url = PLUGIN_URL
 }
 
@@ -27,31 +28,31 @@ public Plugin:myinfo =
 ************ HANDLES *************
 ================================*/
 
-new Handle:g_hTimer;
+Handle g_hTimer;
 
 /*=====================================
 ************* VARIABLES ***************
 =====================================*/
 
-new remainingTime;
-new remainingRetries;
-new bool:isRunning = false;
-new bool:waitingPicker = false;
+int remainingTime;
+int remainingRetries;
+bool isRunning = false;
+bool waitingPicker = false;
 
-new remainingTimeWithoutPickers;
+int remainingTimeWithoutPickers;
 
-float clientsPosition[MAXPLAYERS+1][3];
-float clientsAngle[MAXPLAYERS+1][3];
+float clientsPosition[MAXPLAYERS + 1][3];
+float clientsAngle[MAXPLAYERS + 1][3];
 
-int afkMatches[MAXPLAYERS+1];
+int afkMatches[MAXPLAYERS + 1];
 
-new lastRandomInt;
+int lastRandomInt;
 
 /*==================================
 ******* ONFUNCTIONS & EVENTS *******
 ==================================*/
 
-public OnPluginStart()
+public void OnPluginStart()
 {
 	// Cvars 
 	CreateConVar("forcepicker_version", PLUGIN_VERSION, "Force Picker Version", FCVAR_SPONLY | FCVAR_DONTRECORD | FCVAR_NOTIFY);
@@ -68,9 +69,9 @@ public OnPluginStart()
 	HookEvent("player_death", OnPlayerDeath);
 }
 
-public OnPrePlayerChangeTeam(Event event, const String:strName[], bool:bDontBroadcast)
+public void OnPrePlayerChangeTeam(Event event, const char[] strName, bool bDontBroadcast)
 {
-	if(isRunning)
+	if (isRunning)
 	{
 		int userid = event.GetInt("userid");
 		int newteam = event.GetInt("team");
@@ -79,51 +80,51 @@ public OnPrePlayerChangeTeam(Event event, const String:strName[], bool:bDontBroa
 		event.SetBool("silent", true);
 		
 		// Player moves from picking team to spec or disconnect
-		if((oldteam == 2 || oldteam == 3) && (newteam != 2 && newteam != 3))
+		if ((oldteam == 2 || oldteam == 3) && (newteam != 2 && newteam != 3))
 		{
-			if(GetRandomInt(0, 1000) == 666)
+			if (GetRandomInt(0, 1000) == 666)
 			{
-				if(oldteam == 2 && GetRealTeamClientCount(2) == 1)
+				if (oldteam == 2 && GetRealTeamClientCount(2) == 1)
 					PrintToChatAll("\x01\x07FF4040%N \x01anda con la pera.", GetClientOfUserId(userid));
-			
-				if(oldteam == 3 && GetRealTeamClientCount(3) == 1)
+				
+				if (oldteam == 3 && GetRealTeamClientCount(3) == 1)
 					PrintToChatAll("\x01\x0799CCFF%N \x01anda con la pera.", GetClientOfUserId(userid));
 			}
 			else
 			{
-				if(oldteam == 2 && GetRealTeamClientCount(2) == 1)
+				if (oldteam == 2 && GetRealTeamClientCount(2) == 1)
 					PrintToChatAll("\x01\x07FF4040%N \x01refused to pick.", GetClientOfUserId(userid));
 				
-				if(oldteam == 3 && GetRealTeamClientCount(3) == 1)
+				if (oldteam == 3 && GetRealTeamClientCount(3) == 1)
 					PrintToChatAll("\x01\x0799CCFF%N \x01refused to pick.", GetClientOfUserId(userid));
 			}
 		}
 		
 		// Player chooses to pick while waiting for players to pick.
-		if(waitingPicker)
+		if (waitingPicker)
 		{
-			if((newteam == 2 || newteam == 3) && (oldteam != 2 && oldteam != 3))
+			if ((newteam == 2 || newteam == 3) && (oldteam != 2 && oldteam != 3))
 			{
-				if(newteam == 2 && GetRealTeamClientCount(2) == 0)
+				if (newteam == 2 && GetRealTeamClientCount(2) == 0)
 					PrintToChatAll("\x01\x07FF4040%N \x01will be picking players this match.", GetClientOfUserId(userid));
 				
-				if(newteam == 3 && GetRealTeamClientCount(3) == 0)
+				if (newteam == 3 && GetRealTeamClientCount(3) == 0)
 					PrintToChatAll("\x01\x0799CCFF%N \x01will be picking players this match.", GetClientOfUserId(userid));
 			}
 		}
 	}
 }
 
-public OnPostPlayerChangeTeam(Event event, const String:strName[], bool:bDontBroadcast)
+public void OnPostPlayerChangeTeam(Event event, const char[] strName, bool bDontBroadcast)
 {
-	if(isRunning)
+	if (isRunning)
 	{
 		int userid = event.GetInt("userid");
 		int newteam = event.GetInt("team");
 		int oldteam = event.GetInt("oldteam");
 		
 		// Moves players to old team if attempts to join team that already has a picker
-		if((newteam == 2 && GetRealTeamClientCount(2) == 1) || (newteam == 3 && GetRealTeamClientCount(3) == 1))
+		if ((newteam == 2 && GetRealTeamClientCount(2) == 1) || (newteam == 3 && GetRealTeamClientCount(3) == 1))
 		{
 			DataPack pack;
 			CreateDataTimer(0.1, ChangeTeamTimer, pack);
@@ -141,17 +142,17 @@ public Action ChangeTeamTimer(Handle timer, DataPack pack)
 	pack.Reset();
 	client = pack.ReadCell();
 	oldteam = pack.ReadCell();
-
-	if(IsValidClient(client))
+	
+	if (IsValidClient(client))
 	{
 		ChangeClientTeam(client, oldteam);
 		PrintToChat(client, "You cannot join a team that already has a picker.");
 	}
 }
 
-public OnPlayerDeath(Event event, const String:strName[], bool:bDontBroadcast)
+public void OnPlayerDeath(Event event, const char[] strName, bool bDontBroadcast)
 {
-	if(isRunning)
+	if (isRunning)
 	{
 		int deadPlayer = GetClientOfUserId(event.GetInt("userid"));
 		int attackerPlayer = GetClientOfUserId(event.GetInt("attacker"));
@@ -177,18 +178,18 @@ public OnPlayerDeath(Event event, const String:strName[], bool:bDontBroadcast)
 *********CLIENT COMMANDS************
 ==================================*/
 
-public Action:cmdForcePicker(client, args)
+public Action cmdForcePicker(int client, int args)
 {
-	new String:buffer[16];
-	if(GetConVarBool(FindConVar("mp_tournament")) == false)
+	char buffer[16];
+	if (GetConVarBool(FindConVar("mp_tournament")) == false)
 		return Plugin_Handled;
 	
-	if(args == 0)
+	if (args == 0)
 		cmdExecutor(client);
 	if (args > 0)
 	{
 		GetCmdArg(1, buffer, sizeof buffer);
-		new retries = StringToInt(buffer);
+		int retries = StringToInt(buffer);
 		if (retries == 0) // retries is nan
 		{
 			if (StrEqual(buffer, "stop"))
@@ -232,7 +233,7 @@ public Action:cmdForcePicker(client, args)
 	return Plugin_Handled;
 }
 
-cmdExecutor(client, retries=0 , bool:spec=false, bool:stop=false)
+void cmdExecutor(int client, int retries = 0, bool spec = false, bool stop = false)
 {
 	if (GetRealClientCount() < 2)
 	{
@@ -270,7 +271,7 @@ cmdExecutor(client, retries=0 , bool:spec=false, bool:stop=false)
 	if (spec)
 		MovePlayersToSpec();
 	
-	if(retries)
+	if (retries)
 	{
 		ClearTimer(g_hTimer);
 		
@@ -292,24 +293,24 @@ cmdExecutor(client, retries=0 , bool:spec=false, bool:stop=false)
 	}
 }
 
-public Action:CountdownTimer(Handle:hTimer)
+public Action CountdownTimer(Handle hTimer)
 {
 	isRunning = true;
 	
-	if(remainingTime < 0 || remainingRetries <= 0)
+	if (remainingTime < 0 || remainingRetries <= 0)
 	{
 		PrintToChatAll("\x01Force picker stopped.");
 		isRunning = false;
 		waitingPicker = false;
 		return Plugin_Stop;
 	}
-	else 
+	else
 	{
-		new redCount = GetRealTeamClientCount(2);
-		new bluCount = GetRealTeamClientCount(3);
+		int redCount = GetRealTeamClientCount(2);
+		int bluCount = GetRealTeamClientCount(3);
 		
 		// =========== WAITING PICKER  ============= start
-		if(redCount == 0 || bluCount == 0)
+		if (redCount == 0 || bluCount == 0)
 		{
 			waitingPicker = true;
 			if (remainingTimeWithoutPickers <= 0)
@@ -334,7 +335,7 @@ public Action:CountdownTimer(Handle:hTimer)
 		// =========== WAITING PICKER  ============= end
 		
 		// =========== AFK MANAGER ============= start
-		if(redCount > 0 || bluCount > 0)
+		if (redCount > 0 || bluCount > 0)
 		{
 			AfkManager();
 		}
@@ -344,9 +345,9 @@ public Action:CountdownTimer(Handle:hTimer)
 	}
 }
 
-ClearTimer(&Handle:hTimer)
+void ClearTimer(Handle & hTimer)
 {
-	if(hTimer != INVALID_HANDLE && isRunning == true)
+	if (hTimer != INVALID_HANDLE && isRunning == true)
 	{
 		KillTimer(hTimer);
 		hTimer = INVALID_HANDLE;
@@ -359,11 +360,11 @@ ClearTimer(&Handle:hTimer)
 *************MAIN CODE**************
 ==================================*/
 
-ForcePicker()
+void ForcePicker()
 {
-	new client1, client2;
-	new redCount = GetRealTeamClientCount(2);
-	new bluCount = GetRealTeamClientCount(3);
+	int client1, client2;
+	int redCount = GetRealTeamClientCount(2);
+	int bluCount = GetRealTeamClientCount(3);
 	
 	if (redCount > 0 || bluCount > 0)
 	{
@@ -387,8 +388,8 @@ ForcePicker()
 		ChangeClientTeam(client1, 2); // Red
 		PrintCenterText(client1, "You have been chosen to pick for this match.");
 	}
-	else 
-	{	// Get current player in the team
+	else
+	{  // Get current player in the team
 		client1 = GetRandomPlayer(2);
 	}
 	
@@ -398,8 +399,8 @@ ForcePicker()
 		ChangeClientTeam(client2, 3); // Blue
 		PrintCenterText(client2, "You have been chosen to pick for this match.");
 	}
-	else 
-	{	// Get current player in the team
+	else
+	{  // Get current player in the team
 		client2 = GetRandomPlayer(3);
 	}
 	
@@ -423,21 +424,21 @@ ForcePicker()
 }
 
 
-AfkManager()
+void AfkManager()
 {
-	for(new i = 1; i <= MaxClients; i++) 
+	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsValidClient(i)) 
+		if (IsValidClient(i))
 		{
-			if((GetClientTeam(i) == 2 || GetClientTeam(i) == 3))
+			if ((GetClientTeam(i) == 2 || GetClientTeam(i) == 3))
 			{
 				float clientPosition[3];
 				GetClientAbsOrigin(i, clientPosition);
-
+				
 				float clientAngle[3];
 				GetClientEyeAngles(i, clientAngle);
 				
-				if(AreVectorsEqual(clientPosition, clientsPosition[i]) &&
+				if (AreVectorsEqual(clientPosition, clientsPosition[i]) && 
 					AreVectorsEqual(clientAngle, clientsAngle[i]))
 				{
 					afkMatches[i]++;
@@ -449,14 +450,14 @@ AfkManager()
 				clientsPosition[i] = clientPosition;
 				clientsAngle[i] = clientAngle;
 				
-				if(afkMatches[i] == (MAX_AFK_TIME - 5))
+				if (afkMatches[i] == (MAX_AFK_TIME - 5))
 				{
-					if(GetClientTeam(i) == 2)
+					if (GetClientTeam(i) == 2)
 						PrintToChatAll("\x01Seems that \x07FF4040%N \x01is AFK and will be moved to spectator in 5 seconds.", i);
-					if(GetClientTeam(i) == 3)
+					if (GetClientTeam(i) == 3)
 						PrintToChatAll("\x01Seems that \x0799CCFF%N \x01is AFK and will be moved to spectator in 5 seconds.", i);
 				}
-				if(afkMatches[i] >= MAX_AFK_TIME) 
+				if (afkMatches[i] >= MAX_AFK_TIME)
 				{
 					/*
 					if(GetClientTeam(i) == 2)
@@ -466,7 +467,7 @@ AfkManager()
 					*/
 					ChangeClientTeam(i, 1);
 				}
-				if(afkMatches[i] >= (MAX_AFK_TIME - 5))
+				if (afkMatches[i] >= (MAX_AFK_TIME - 5))
 				{
 					PrintCenterText(i, "You will be moved to spectator if you don't move in %d seconds.", (MAX_AFK_TIME - afkMatches[i]));
 				}
@@ -480,11 +481,11 @@ AfkManager()
 }
 
 // Change to weapon slot 2 (Melee)
-public Action:tmrMeleeStrip(Handle:timer, any:client) 
-{ 
+public Action tmrMeleeStrip(Handle timer, any client)
+{
 	if (client && IsPlayerAlive(client))
 	{
-		new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Melee);
+		int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Melee);
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 	}
 }
@@ -494,7 +495,7 @@ public Action:tmrMeleeStrip(Handle:timer, any:client)
 ==================================*/
 
 
-IsValidClient(client)
+bool IsValidClient(int client)
 {
 	//if(client <= 0 || client > MaxClients || !IsClientInGame(client)) // DEBUG PURPOSES
 	if (client <= 0 || client > MaxClients || !IsClientInGame(client) || IsFakeClient(client))
@@ -502,52 +503,54 @@ IsValidClient(client)
 	return true;
 }
 
-GetRealClientCount() 
+int GetRealClientCount()
 {
-	new clients = 0;
-	for (new i = 1; i <= MaxClients; i++)
+	int clients = 0;
+	for (int i = 1; i <= MaxClients; i++)
 	{
-		if(IsValidClient(i)) 
+		if (IsValidClient(i))
 			clients++;
 	}
 	return clients;
 }
 
-GetRealTeamClientCount(team)
+int GetRealTeamClientCount(int team)
 {
-	new clients = 0;
-	for (new i = 1; i <= MaxClients; i++)
-		if(IsValidClient(i) && GetClientTeam(i) == team) 
-			clients++;
+	int clients = 0;
+	for (int i = 1; i <= MaxClients; i++)
+	if (IsValidClient(i) && GetClientTeam(i) == team)
+		clients++;
 	return clients;
 }
 
-GetRandomPlayer(team) 
-{ 
-	new clients[MaxClients+1], clientCount; 
-	for (new i = 1; i <= MaxClients; i++) 
-		if (IsValidClient(i) && GetClientTeam(i) == team) 
-			clients[clientCount++] = i;
-		
-	new randomInt = GetRandomInt(0, clientCount-1);
-	if(randomInt == lastRandomInt)
-		randomInt = GetRandomInt(0, clientCount-1);
+int GetRandomPlayer(int team)
+{
+	int[] clients = new int[MaxClients + 1];
+	int clientCount;
+	for (int i = 1; i <= MaxClients; i++)
+	if (IsValidClient(i) && GetClientTeam(i) == team)
+		clients[clientCount++] = i;
+	
+	int randomInt = GetRandomInt(0, clientCount - 1);
+	if (randomInt == lastRandomInt)
+		randomInt = GetRandomInt(0, clientCount - 1);
 	lastRandomInt = randomInt;
-
-	return (clientCount == 0) ? -1 : clients[randomInt]; 
+	
+	return (clientCount == 0) ? -1 : clients[randomInt];
 }
 
-MovePlayersToSpec()
+void MovePlayersToSpec()
 {
-	decl String:buffer[96];
-	new targets[33], bool:ml;
-	new count = ProcessTargetString("@all", 0, targets, sizeof(targets), COMMAND_FILTER_CONNECTED, buffer, sizeof(buffer), ml);
+	char buffer[96];
+	int targets[33];
+	bool ml;
+	int count = ProcessTargetString("@all", 0, targets, sizeof(targets), COMMAND_FILTER_CONNECTED, buffer, sizeof(buffer), ml);
 	if (count > 0)
 	{
-		for (new i = 0; i < count; i++)
+		for (int i = 0; i < count; i++)
 		{
-			new t = targets[i];
-			if (IsPlayerAlive(t)) ForcePlayerSuicide(t);
+			int t = targets[i];
+			if (IsPlayerAlive(t))ForcePlayerSuicide(t);
 			ChangeClientTeam(t, 1);
 		}
 	}
